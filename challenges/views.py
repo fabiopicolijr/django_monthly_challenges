@@ -1,6 +1,8 @@
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
+from django.http import Http404, HttpResponseNotFound, HttpResponseRedirect
 from django.urls import reverse
+
+
 
 monthly_challenges = {
     "january": "Eat no meat for entire month!",
@@ -14,27 +16,17 @@ monthly_challenges = {
     "september": "Walk for at least 27 minutes every day!",
     "october": "Walk for at least 28 minutes every day!",
     "november": "Walk for at least 29 minutes every day!",
-    "december": "Walk for at least 30 minutes every day!",
+    "december": None,    
 }
 
 
-def test():
-    if 1+1 == 2:
-        pass
 
-
-def index(request):
-    list_items = ""
-
+def index(request):    
     months = list(monthly_challenges.keys())
 
-    for month in months:
-        capitalize_month = month.capitalize()
-        month_path = reverse("month-challenge", args=[month])
-        list_items += f"<li><a href=\"{month_path}\">{capitalize_month}</a></li>"
-
-    response_data = f"<ul>{list_items}</ul>"
-    return HttpResponse(response_data)
+    return render(request, "challenges/index.html", {
+        "months": months
+    })
 
 
 def monthly_challenge_by_number(request, month):
@@ -55,5 +47,5 @@ def monthly_challenge(request, month):
             "month_name": month,
             "text": challenge_text
         })
-    except:
-        return HttpResponseNotFound("This month is not supported.")
+    except Exception as e:        
+        raise Http404() # it will use the file templates/404.html if debug is set to false.
